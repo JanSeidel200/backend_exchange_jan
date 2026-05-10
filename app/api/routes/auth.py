@@ -28,3 +28,8 @@ def login(payload: LoginRequest, response: Response) -> LoginResponse:
         max_age=settings.jwt_expire_minutes * 60,
     )
     return LoginResponse(username=payload.username, message="Logged in")
+
+@router.post("/logout")
+def logout(response: Response) -> dict[str, str]:
+    response.delete_cookie(COOKIE_NAME)
+    return {"message": "Logged out"}
