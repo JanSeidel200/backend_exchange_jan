@@ -19,12 +19,13 @@ def login(payload: LoginRequest, response: Response) -> LoginResponse:
             detail="Invalid credentials",
         )
     token = create_access_token(payload.username)
+    is_production = settings.environment != "local"
     response.set_cookie(
         key=COOKIE_NAME,
         value=token,
         httponly=True,
-        secure=settings.environment != "local",
-        samesite="lax",
+        secure=is_production,
+        samesite="none" if is_production else "lax",
         max_age=settings.jwt_expire_minutes * 60,
     )
     return LoginResponse(username=payload.username, message="Logged in")
