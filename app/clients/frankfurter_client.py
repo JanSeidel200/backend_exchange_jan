@@ -5,6 +5,13 @@ import httpx
 
 from app.core.config import settings
 
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
+
 
 class FrankfurterClient:
     def __init__(self) -> None:
@@ -24,6 +31,13 @@ class FrankfurterClient:
     def _cache_set(self, key: str, value: Any) -> None:
         self._cache[key] = (time.time(), value)
 
+
+    @retry(
+        retry=retry_if_exception_type(httpx.HTTPError),
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=0.5, min=0.5, max=4),
+        reraise=True,
+    )
     async def _get(
         self, path: str, params: dict[str, str] | None = None
     ) -> Any:
