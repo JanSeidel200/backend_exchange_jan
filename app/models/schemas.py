@@ -9,3 +9,7 @@ class LoginRequest(BaseModel):
 class LoginResponse(BaseModel):
     username: str
     message: str
+
+class CurrencyOption(BaseModel):
+    code: str
+    name: str
