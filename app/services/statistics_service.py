@@ -14,3 +14,13 @@ class StatisticsService:
         series: dict[str, dict[str, float]],
     ) -> AnalyzeResponse:
         raise NotImplementedError
+    
+    def _find_strongest(self, latest_rates):
+        if not latest_rates:
+            return None
+        return max(latest_rates, key=latest_rates.get)
+
+    def _find_weakest(self, latest_rates):
+        if not latest_rates:
+            return None
+        return min(latest_rates, key=latest_rates.get)
