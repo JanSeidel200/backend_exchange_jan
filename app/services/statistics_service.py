@@ -24,3 +24,19 @@ class StatisticsService:
         if not latest_rates:
             return None
         return min(latest_rates, key=latest_rates.get)
+    
+    def _calculate_currency_stat(self, code, latest_rate, series):
+        values = []
+        for rates_for_day in series.values():
+            rate = rates_for_day.get(code)
+            if rate is not None:
+                values.append(rate)
+        average_rate = sum(values) / len(values) if values else None
+        return CurrencyStat(
+            code=code,
+            latest_rate=latest_rate,
+            average_rate=average_rate,
+            min_rate=min(values) if values else None,
+            max_rate=max(values) if values else None,
+            data_points=len(values),
+        )
