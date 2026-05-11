@@ -2,6 +2,7 @@ import time
 from typing import Any
 
 import httpx
+from datetime import date
 
 from app.core.config import settings
 
@@ -55,3 +56,20 @@ class FrankfurterClient:
 
     async def get_currencies(self) -> dict[str, str]:
         return await self._get("/currencies")
+    
+    async def get_latest_rates(
+        self, base: str, symbols: list[str]
+    ) -> dict:
+        params = {"base": base, "symbols": ",".join(symbols)}
+        return await self._get("/latest", params=params)
+    
+    async def get_time_series(
+        self,
+        base: str,
+        symbols: list[str],
+        start_date: date,
+        end_date: date,
+    ) -> dict:
+        params = {"base": base, "symbols": ",".join(symbols)}
+        path = f"/{start_date.isoformat()}..{end_date.isoformat()}"
+        return await self._get(path, params=params)
