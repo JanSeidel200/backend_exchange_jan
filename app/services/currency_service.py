@@ -1,10 +1,20 @@
 from app.clients.frankfurter_client import FrankfurterClient
-from app.models.schemas import CurrencyOption
+from app.models.schemas import (
+    AnalyzeRequest,
+    AnalyzeResponse,
+    CurrencyOption,
+)
+from app.services.statistics_service import StatisticsService
 
 
 class CurrencyService:
-    def __init__(self, client: FrankfurterClient | None = None) -> None:
+    def __init__(
+        self,
+        client: FrankfurterClient | None = None,
+        statistics_service: StatisticsService | None = None,
+    ) -> None:
         self.client = client or FrankfurterClient()
+        self.statistics_service = statistics_service or StatisticsService()
 
     async def list_currencies(self) -> list[CurrencyOption]:
         currencies = await self.client.get_currencies()
@@ -12,3 +22,22 @@ class CurrencyService:
             CurrencyOption(code=code, name=name)
             for code, name in sorted(currencies.items())
         ]
+
+    async def analyze(self, request: AnalyzeRequest) -> AnalyzeResponse:
+        latest_payload = await self.client.get_latest_rates(
+            request.base, request.symbols
+        )
+        series_payload = await self.client.get_time_series(
+            request.base,
+            request.symbols,
+            request.start_date,
+            request.end_date,
+        )
+        return self.statistics_service.analyze(
+            base=request.base,
+            symbols=request.symbols,
+            start_date=request.start_date,
+            end_date=request.end_date,
+            latest_rates=latest_payload.get("rates", {}),
+            series=series_payload.get("rates", {}),
+        )
