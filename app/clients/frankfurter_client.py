@@ -55,3 +55,9 @@ class FrankfurterClient:
 
     async def get_currencies(self) -> dict[str, str]:
         return await self._get("/currencies")
+    
+    async def get_latest_rates(
+        self, base: str, symbols: list[str]
+    ) -> dict:
+        params = {"base": base, "symbols": ",".join(symbols)}
+        return await self._get("/latest", params=params)
