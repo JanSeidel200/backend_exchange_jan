@@ -6,14 +6,30 @@ from app.models.schemas import AnalyzeResponse, CurrencyStat
 class StatisticsService:
     def analyze(
         self,
-        base: str,
-        symbols: list[str],
-        start_date: date,
-        end_date: date,
-        latest_rates: dict[str, float],
-        series: dict[str, dict[str, float]],
+        base,
+        symbols,
+        start_date,
+        end_date,
+        latest_rates,
+        series,
     ) -> AnalyzeResponse:
-        raise NotImplementedError
+        strongest = self._find_strongest(latest_rates)
+        weakest = self._find_weakest(latest_rates)
+        stats = [
+            self._calculate_currency_stat(
+                symbol, latest_rates.get(symbol), series
+            )
+            for symbol in symbols
+        ]
+        return AnalyzeResponse(
+            base=base,
+            start_date=start_date,
+            end_date=end_date,
+            strongest_currency=strongest,
+            weakest_currency=weakest,
+            stats=stats,
+            series=series,
+        )
     
     def _find_strongest(self, latest_rates):
         if not latest_rates:
