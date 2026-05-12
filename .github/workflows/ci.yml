@@ -30,3 +30,11 @@ jobs:
           ENVIRONMENT: local
           FRONTEND_ORIGIN: http://localhost:5173
         run: pytest
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
+          if-no-files-found: ignore
