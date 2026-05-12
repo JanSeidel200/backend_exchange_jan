@@ -1,4 +1,5 @@
 import time
+import logging
 from typing import Any
 
 import httpx
@@ -12,6 +13,8 @@ from tenacity import (
     stop_after_attempt,
     wait_exponential,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class FrankfurterClient:
@@ -45,8 +48,10 @@ class FrankfurterClient:
         cache_key = f"{path}:{params}"
         cached = self._cache_get(cache_key)
         if cached is not None:
+            logger.info("Cache hit: %s", cache_key)
             return cached
         url = f"{self.base_url}{path}"
+        logger.info("Calling Frankfurter API: %s params=%s", url, params)
         async with httpx.AsyncClient(timeout=10) as client:
             response = await client.get(url, params=params)
             response.raise_for_status()
