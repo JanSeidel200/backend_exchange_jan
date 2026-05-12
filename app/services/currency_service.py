@@ -5,6 +5,7 @@ from app.models.schemas import (
     CurrencyOption,
 )
 from app.services.statistics_service import StatisticsService
+from app.storage.file_storage import FileStorage
 
 
 class CurrencyService:
@@ -12,9 +13,11 @@ class CurrencyService:
         self,
         client: FrankfurterClient | None = None,
         statistics_service: StatisticsService | None = None,
+        storage: FileStorage | None = None,
     ) -> None:
         self.client = client or FrankfurterClient()
         self.statistics_service = statistics_service or StatisticsService()
+        self.storage = storage or FileStorage()
 
     async def list_currencies(self) -> list[CurrencyOption]:
         currencies = await self.client.get_currencies()
@@ -33,7 +36,8 @@ class CurrencyService:
             request.start_date,
             request.end_date,
         )
-        return self.statistics_service.analyze(
+        
+        result = self.statistics_service.analyze(
             base=request.base,
             symbols=request.symbols,
             start_date=request.start_date,
@@ -41,3 +45,14 @@ class CurrencyService:
             latest_rates=latest_payload.get("rates", {}),
             series=series_payload.get("rates", {}),
         )
+        
+        self.storage.append_analysis_history(
+            request=request.model_dump(mode="json"),
+            response=result.model_dump(mode="json"),
+        )
+        
+        self.storage.save_settings(
+            {"base": request.base, "symbols": request.symbols}
+        )
+        
+        return result
