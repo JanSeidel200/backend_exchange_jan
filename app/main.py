@@ -9,7 +9,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from app.core.rate_limit import limiter
 
-from app.api.routes import auth, currency, health
+from app.api.routes import auth, currency, health, logs
 from app.core.config import settings
 
 from app.core.logging_config import configure_logging
@@ -53,6 +53,7 @@ async def unhandled_exception_handler(
 app.include_router(health.router, prefix="/api")
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(currency.router, prefix="/api/currency", tags=["currency"])
+app.include_router(logs.router, prefix="/api", tags=["logs"])
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
