@@ -1,5 +1,4 @@
 from fastapi.testclient import TestClient
-
 from app.main import app
 
 client = TestClient(app)
@@ -25,3 +24,19 @@ def test_login_invalid_credentials():
 def test_logout_returns_ok():
     response = client.post("/api/auth/logout")
     assert response.status_code == 200
+
+def test_login_rate_limit_blocks_after_10_attempts():
+    client.cookies.clear()
+    
+    for _ in range(10):
+        response = client.post(
+            "/api/auth/login",
+            json={"username": "admin", "password": "wrong"},
+        )
+        assert response.status_code == 401
+    
+    response = client.post(
+        "/api/auth/login",
+        json={"username": "admin", "password": "wrong"},
+    )
+    assert response.status_code == 429
