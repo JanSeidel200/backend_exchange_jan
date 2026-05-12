@@ -10,6 +10,10 @@ from app.core.rate_limit import limiter
 from app.api.routes import auth, currency, health
 from app.core.config import settings
 
+from app.core.logging_config import configure_logging
+
+configure_logging()
+
 app = FastAPI(title=settings.app_name)
 
 app.add_middleware(
