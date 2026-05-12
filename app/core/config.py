@@ -11,7 +11,8 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60
     frankfurter_base_url: str = "https://api.frankfurter.dev/v1"
-    cache_ttl_seconds: int = 300
+    cache_ttl_seconds: int = 600
+    rate_limit_per_minute: int = 60
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
