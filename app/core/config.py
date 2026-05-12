@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     frankfurter_base_url: str = "https://api.frankfurter.dev/v1"
     cache_ttl_seconds: int = 600
     rate_limit_per_minute: int = 60
+    auth_rate_limit_per_minute: int = 10
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

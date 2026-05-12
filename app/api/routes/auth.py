@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import APIRouter, HTTPException, Request, Response, status
 
 from app.core.config import settings
+from app.core.rate_limit import limiter
 from app.core.security import (
     COOKIE_NAME,
     create_access_token,
@@ -12,7 +13,8 @@ router = APIRouter()
 
 
 @router.post("/login", response_model=LoginResponse)
-def login(payload: LoginRequest, response: Response) -> LoginResponse:
+@limiter.limit(f"{settings.auth_rate_limit_per_minute}/minute")
+def login(payload: LoginRequest, response: Response, request: Request) -> LoginResponse:
     if not verify_admin_credentials(payload.username, payload.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -31,6 +33,7 @@ def login(payload: LoginRequest, response: Response) -> LoginResponse:
     return LoginResponse(username=payload.username, message="Logged in")
 
 @router.post("/logout")
-def logout(response: Response) -> dict[str, str]:
+@limiter.limit(f"{settings.auth_rate_limit_per_minute}/minute")
+def logout(request: Request, response: Response) -> dict[str, str]:
     response.delete_cookie(COOKIE_NAME)
     return {"message": "Logged out"}
