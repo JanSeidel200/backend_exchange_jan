@@ -7,6 +7,13 @@ from app.models.schemas import (
 from app.services.statistics_service import StatisticsService
 from app.storage.file_storage import FileStorage
 
+# Seznam dle ČNB kurzovního lístku
+# https://www.cnb.cz/cs/platebni-styk/sluzby-pro-klienty/kurzovni-listek-cnb/
+CNB_ALLOWED_CURRENCIES: frozenset[str] = frozenset({
+    "AUD", "BGN", "BRL", "CAD", "CHF", "CNY", "CZK", "DKK", "EUR", "GBP",
+    "HKD", "HUF", "IDR", "ILS", "INR", "ISK", "JPY", "KRW", "MXN", "MYR",
+    "NOK", "NZD", "PHP", "PLN", "RON", "SEK", "SGD", "THB", "TRY", "USD", "ZAR",
+})
 
 class CurrencyService:
     def __init__(
@@ -24,6 +31,7 @@ class CurrencyService:
         return [
             CurrencyOption(code=code, name=name)
             for code, name in sorted(currencies.items())
+            if code in CNB_ALLOWED_CURRENCIES
         ]
 
     async def analyze(self, request: AnalyzeRequest) -> AnalyzeResponse:
