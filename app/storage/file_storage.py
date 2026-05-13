@@ -17,6 +17,14 @@ class FileStorage:
             encoding="utf-8",
         )
 
+    def load_settings(self) -> dict[str, Any] | None:
+        if not self.settings_path.exists():
+            return None
+        try:
+            return json.loads(self.settings_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return None
+
     def append_analysis_history(
         self,
         request: dict[str, Any],
