@@ -30,7 +30,7 @@ def login(payload: LoginRequest, response: Response, request: Request) -> LoginR
         samesite="none" if is_production else "lax",
         max_age=settings.jwt_expire_minutes * 60,
     )
-    return LoginResponse(username=payload.username, message="Logged in")
+    return LoginResponse(username=payload.username, message="Logged in", access_token=token,)
 
 @router.post("/logout")
 @limiter.limit(f"{settings.auth_rate_limit_per_minute}/minute")
